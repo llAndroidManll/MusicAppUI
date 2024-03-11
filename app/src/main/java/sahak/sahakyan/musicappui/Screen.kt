@@ -23,3 +23,9 @@ sealed class Screen(
         )
     }
 }
+
+val screenInDrawer = listOf(
+    Screen.DrawerScreen.Account,
+    Screen.DrawerScreen.Subscription,
+    Screen.DrawerScreen.AddAccount
+)
