@@ -85,7 +85,7 @@ fun MainView(
         modifier = Modifier,
         topBar = {
              TopAppBar(
-                 title = { Text("Home") },
+                 title = { Text(title.value) },
                  navigationIcon = {
                      IconButton(onClick = {
                         /* TODO OPEN THE DRAWER*/
@@ -172,14 +172,14 @@ fun Navigation(
 ) {
     NavHost(
         navController = navController as NavHostController,
-        startDestination = Screen.DrawerScreen.AddAccount.route,
+        startDestination = Screen.DrawerScreen.Account.route,
         modifier = Modifier.padding(pd),
     ) {
-        composable(Screen.DrawerScreen.AddAccount.route) {
-
+        composable(Screen.DrawerScreen.Account.route) {
+            AccountView()
         }
         composable(Screen.DrawerScreen.Subscription.route) {
-//            SubscriptionScreen(viewModel)
+            Subscription()
         }
     }
 }
