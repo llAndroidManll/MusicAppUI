@@ -7,6 +7,23 @@ sealed class Screen(
     val title: String,
     val route: String,
 ) {
+
+    sealed class BottomScreen(
+        val bTitle: String,
+        val bRoute: String,
+        @DrawableRes val icon: Int
+    ) : Screen(bTitle,bRoute){
+        data object Home: BottomScreen(
+            "Home","home",R.drawable.baseline_home_24
+        )
+        data object Browse: BottomScreen(
+            "Browse","browse",R.drawable.browse
+        )
+        data object Library: BottomScreen(
+            "Library","library",R.drawable.library
+        )
+    }
+
     sealed class DrawerScreen(
         val dTitle: String,
         val dRoute: String,
@@ -28,4 +45,10 @@ val screenInDrawer = listOf(
     Screen.DrawerScreen.Account,
     Screen.DrawerScreen.Subscription,
     Screen.DrawerScreen.AddAccount
+)
+
+val screenInBottom = listOf(
+    Screen.BottomScreen.Home,
+    Screen.BottomScreen.Browse,
+    Screen.BottomScreen.Library
 )
