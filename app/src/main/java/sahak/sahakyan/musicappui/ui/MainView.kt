@@ -90,6 +90,8 @@ fun MainView(
             BottomNavigation(Modifier.wrapContentSize()) {
                 screenInBottom.forEach{
                     item->
+                    val isSelected = currentRoute == item.bRoute
+                    val tint = if (isSelected) Color.White else Color.Black
                     BottomNavigationItem(
                         selected = currentRoute == item.bRoute,
                         onClick = {
@@ -97,12 +99,13 @@ fun MainView(
                         },
                         icon = {
                             Icon(
+                                tint = tint,
                                 painter = painterResource(id = item.icon),
                                 contentDescription = null
                             )
                         },
                         label = {
-                            Text(text = item.bTitle)
+                            Text(text = item.bTitle, color = tint)
                         },
                         selectedContentColor = Color.White,
                         unselectedContentColor = Color.Black
@@ -223,7 +226,7 @@ fun Navigation(
         }
 
         composable(Screen.BottomScreen.Library.bRoute) {
-            // TODO Add Library Screen
+            Library()
         }
     }
 }
