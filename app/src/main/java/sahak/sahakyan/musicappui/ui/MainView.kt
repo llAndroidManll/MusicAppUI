@@ -6,8 +6,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.icons.Icons
@@ -39,6 +42,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import sahak.sahakyan.musicappui.MainViewModel
 import sahak.sahakyan.musicappui.Screen
+import sahak.sahakyan.musicappui.screenInBottom
 import sahak.sahakyan.musicappui.screenInDrawer
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,6 +83,33 @@ fun MainView(
 
     val title = remember {
         mutableStateOf(currentScreen.title)
+    }
+
+    val bottomBar: @Composable () -> Unit = {
+        if(currentScreen is Screen.DrawerScreen || currentScreen == Screen.BottomScreen.Home) {
+            BottomNavigation(Modifier.wrapContentSize()) {
+                screenInBottom.forEach{
+                    item->
+                    BottomNavigationItem(
+                        selected = currentRoute == item.bRoute,
+                        onClick = {
+                            controller.navigate(item.bRoute)
+                        },
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = item.icon),
+                                contentDescription = null
+                            )
+                        },
+                        label = {
+                            Text(text = item.bTitle)
+                        },
+                        selectedContentColor = Color.White,
+                        unselectedContentColor = Color.Black
+                    )
+                }
+            }
+        }
     }
 
     Scaffold(
@@ -127,7 +158,8 @@ fun MainView(
                     }
                 }
             }
-        }
+        },
+        bottomBar = bottomBar
     ) {
         Navigation(navController = controller, viewModel = viewModel, pd = it)
         AccountDialog(dialogOpen = dialogOpen)
