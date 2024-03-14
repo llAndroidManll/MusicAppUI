@@ -2,16 +2,25 @@ package sahak.sahakyan.musicappui.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -20,8 +29,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material.Scaffold
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.primarySurface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -41,11 +54,12 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import sahak.sahakyan.musicappui.MainViewModel
+import sahak.sahakyan.musicappui.R
 import sahak.sahakyan.musicappui.Screen
 import sahak.sahakyan.musicappui.screenInBottom
 import sahak.sahakyan.musicappui.screenInDrawer
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun MainView(
 
@@ -96,6 +110,7 @@ fun MainView(
                         selected = currentRoute == item.bRoute,
                         onClick = {
                             controller.navigate(item.bRoute)
+                            title.value = item.bTitle
                         },
                         icon = {
                             Icon(
@@ -115,58 +130,136 @@ fun MainView(
         }
     }
 
-    Scaffold(
-        modifier = Modifier,
-        topBar = {
-             TopAppBar(
-                 title = { Text(title.value) },
-                 navigationIcon = {
-                     IconButton(onClick = {
-                        /* TODO OPEN THE DRAWER*/
-                         /* Opening a drawer is synchronize method(գործողություն), it's a suspend function that happens. ---(Look at  *We need something called a scaffold state,...)---
-                         * */
-                         /*
-                         *  So this one will be our open drawer launch where I'm just going to use the scope to launch the following code.
-                         *  I'm going to use the scaffold state and then access the drawer state and say open.
-                         * */
-                         scope.launch {
-                             // So instead of scaffold state, there is this property called draw state, which you can use in order to open the draw.
-                             scaffoldState.drawerState.open()
-                         }
-                     }) {
-                        Icon(
-                            imageVector = Icons.Default.AccountCircle,
-                            contentDescription = null
-                        )
-                    }
-                 }
-             )
+    val isSheetFullScreen by remember {
+        mutableStateOf(false)
+    }
+    val modifier = if (isSheetFullScreen) Modifier.fillMaxSize() else Modifier.fillMaxWidth()
+
+    val modalSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded }
+    )
+
+    val roundedCornerRadius = if (isSheetFullScreen) 0.dp else 12.dp
+
+    ModalBottomSheetLayout(
+        sheetState = modalSheetState,
+        sheetShape = RoundedCornerShape(topStart = roundedCornerRadius, topEnd = roundedCornerRadius),
+        sheetContent = {
+            MoreButtonSheet(modifier = modifier)
         },
-        scaffoldState = scaffoldState,
-        drawerContent = {
-            LazyColumn(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                items(screenInDrawer) { item ->
-                    DrawerItem(selected = currentRoute == item.dRoute, item = item) {
-                        scope.launch {
-                            scaffoldState.drawerState.close()
+    ) {
+        Scaffold(
+            modifier = Modifier,
+            topBar = {
+                TopAppBar(
+                    title = { Text(title.value) },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            /* TODO OPEN THE DRAWER*/
+                            /* Opening a drawer is synchronize method(գործողություն), it's a suspend function that happens. ---(Look at  *We need something called a scaffold state,...)---
+                            * */
+                            /*
+                            *  So this one will be our open drawer launch where I'm just going to use the scope to launch the following code.
+                            *  I'm going to use the scaffold state and then access the drawer state and say open.
+                            * */
+                            scope.launch {
+                                // So instead of scaffold state, there is this property called draw state, which you can use in order to open the draw.
+                                scaffoldState.drawerState.open()
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.AccountCircle,
+                                contentDescription = null
+                            )
                         }
-                        if(item.dRoute == "add_account") {
-                            dialogOpen.value = true
-                        } else {
-                            controller.navigate(item.dRoute)
-                            title.value = item.dTitle
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                if(modalSheetState.isVisible)
+                                    modalSheetState.hide()
+                                else
+                                    modalSheetState.show()
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = null
+                            )
+                        }
+                    }
+                )
+            },
+            scaffoldState = scaffoldState,
+            drawerContent = {
+                LazyColumn(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    items(screenInDrawer) { item ->
+                        DrawerItem(selected = currentRoute == item.dRoute, item = item) {
+                            scope.launch {
+                                scaffoldState.drawerState.close()
+                            }
+                            if(item.dRoute == "add_account") {
+                                dialogOpen.value = true
+                            } else {
+                                controller.navigate(item.dRoute)
+                                title.value = item.dTitle
+                            }
                         }
                     }
                 }
-            }
-        },
-        bottomBar = bottomBar
-    ) {
-        Navigation(navController = controller, viewModel = viewModel, pd = it)
-        AccountDialog(dialogOpen = dialogOpen)
+            },
+            bottomBar = bottomBar
+        ) {
+            Navigation(navController = controller, viewModel = viewModel, pd = it)
+            AccountDialog(dialogOpen = dialogOpen)
+        }
     }
+}
+
+@Composable
+fun MoreButtonSheet(modifier: Modifier = Modifier) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .background(MaterialTheme.colors.primarySurface)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            ) {
+                Icon(painter = painterResource(id = R.drawable.baseline_settings_24), contentDescription = null)
+                Text(text = "Settings", fontSize = 20.sp, color = Color.White)
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            ) {
+                Icon(painter = painterResource(id = R.drawable.ic_baseline_share_24), contentDescription = null)
+                Text(text = "Share", fontSize = 20.sp, color = Color.White)
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            ) {
+                Icon(painter = painterResource(id = R.drawable.ic_help_green), contentDescription = null)
+                Text(text = "Help", fontSize = 20.sp, color = Color.White)
+            }
+        }
+    }
+    TODO("Not yet implemented")
 }
 
 @Composable
