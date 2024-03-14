@@ -213,5 +213,17 @@ fun Navigation(
         composable(Screen.DrawerScreen.Subscription.route) {
             Subscription()
         }
+
+        composable(Screen.BottomScreen.Home.bRoute) {
+            // TODO Add Home Screen
+        }
+
+        composable(Screen.BottomScreen.Browse.bRoute) {
+            // TODO Add Browse Screen
+        }
+
+        composable(Screen.BottomScreen.Library.bRoute) {
+            // TODO Add Library Screen
+        }
     }
 }
