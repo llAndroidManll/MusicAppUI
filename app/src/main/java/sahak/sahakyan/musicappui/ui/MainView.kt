@@ -215,11 +215,11 @@ fun Navigation(
         }
 
         composable(Screen.BottomScreen.Home.bRoute) {
-            // TODO Add Home Screen
+            Home()
         }
 
         composable(Screen.BottomScreen.Browse.bRoute) {
-            // TODO Add Browse Screen
+            BrowseScreen()
         }
 
         composable(Screen.BottomScreen.Library.bRoute) {
